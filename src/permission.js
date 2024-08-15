@@ -2,18 +2,22 @@ import router from './router'
 import nprogress from 'nprogress'
 import 'nprogress/nprogress.css'
 import store from '@/store'
+// import { Message } from 'element-ui'
 // 前置守卫
 const whiteList = ['/login', '/404']
-router.beforeEach((to, from, next) => {
+router.beforeEach(async(to, from, next) => {
   nprogress.start()
   // token存在
   // console.log(store.getters.token)
   if (store.getters.token) {
-    // 存在且去登录页面
+    // token存在且去登录页面
     if (to.path === '/login') {
       next('/')
       nprogress.done()
-    } else { // 存在不去登录页面
+    } else { // token存在不去登录页面
+      if (!store.getters.userId) {
+        await store.dispatch('user/getUserInfo')
+      }
       next()
     }
   } else { // token不存在
