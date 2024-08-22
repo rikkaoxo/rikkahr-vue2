@@ -120,8 +120,10 @@ export const transListToTreeData = (list, rootValue) => {
   const datalist = []
   list.forEach(item => {
     if (item.pid === rootValue) {
-      item.children = transListToTreeData(list, item.id)
       datalist.push(item)
+      // 当前节点的id 和 当前节点的子节点的pid是想等的
+      const children = transListToTreeData(list, item.id) // 找到的节点的子节点
+      if (children.length) { item.children = children }
     }
   })
   return datalist

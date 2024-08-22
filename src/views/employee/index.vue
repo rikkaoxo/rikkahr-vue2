@@ -25,7 +25,7 @@
       </div>
       <div class="right">
         <el-row class="opeate-tools" type="flex" justify="end">
-          <el-button size="mini" type="primary">添加员工</el-button>
+          <el-button size="mini" type="primary" @click="$router.push('/employee/detail')">添加员工</el-button>
           <el-button size="mini">excel导入</el-button>
           <el-button size="mini">excel导出</el-button>
         </el-row>
@@ -51,7 +51,7 @@
           <el-table-column prop="timeOfEntry" label="入职时间" sortable />
           <el-table-column label="操作">
             <template v-slot="{row}">
-              <el-button size="mini" type="text">查看</el-button>
+              <el-button size="mini" type="text" @click="$router.push(`/employee/detail/${row.id}`)">查看</el-button>
               <el-button size="mini" type="text">角色</el-button>
               <el-popconfirm title="确认删除该行数据吗？" @onConfirm="confirmDel(row.id)">
                 <el-button slot="reference" style="margin-left:10px" size="mini" type="text">删除</el-button>
