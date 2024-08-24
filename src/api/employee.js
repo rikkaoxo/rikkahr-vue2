@@ -25,3 +25,13 @@ export const getEmployeeDetail = (id) => {
 export const updateEmployee = (data) => {
   return request.put(`/sys/user/${data.id}`, data)
 }
+
+// 获取启用的角色列表
+export const getEnableRoleList = () => {
+  return request.get('/sys/role/list/enabled')
+}
+
+// 分配员工角色
+export const assignRole = (data) => {
+  return request.put('/sys/user/assignRoles', data)
+}

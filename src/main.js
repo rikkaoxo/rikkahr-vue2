@@ -36,6 +36,18 @@ Vue.use(ElementUI)
 
 Vue.config.productionTip = false
 
+Vue.directive('permission', {
+  inserted(el, binding) {
+    const points = store.state.user.userInfo?.roles?.points || []
+    if (!points.includes(binding.value)) {
+      // 不存在就要删除或者禁用
+      el.remove() // 删除元素
+      // el.disabled = true
+      // 线上的权限数据和线下的代码进行对应
+    }
+  }
+})
+
 new Vue({
   el: '#app',
   router,

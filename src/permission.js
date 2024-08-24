@@ -1,4 +1,5 @@
 import router from './router'
+import { asyncRoutes } from '@/router'
 import nprogress from 'nprogress'
 import 'nprogress/nprogress.css'
 import store from '@/store'
@@ -16,9 +17,19 @@ router.beforeEach(async(to, from, next) => {
       nprogress.done()
     } else { // token存在不去登录页面
       if (!store.getters.userId) {
-        await store.dispatch('user/getUserInfo')
+        const data = await store.dispatch('user/getUserInfo')
+        // console.log(data.roles.menus)
+        // console.log(asyncRoutes)
+        const filterRoutes = asyncRoutes.filter(item => {
+          return data.roles.menus.includes(item.name)
+        })
+        console.log(filterRoutes)
+        store.commit('user/setRoutes', filterRoutes)
+        router.addRoutes([...filterRoutes, { path: '*', redirect: '/404', hidden: true }])
+        next(to.path)
+      } else {
+        next()
       }
-      next()
     }
   } else { // token不存在
     if (whiteList.includes(to.path)) {

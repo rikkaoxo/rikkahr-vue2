@@ -25,7 +25,7 @@
       </div>
       <div class="right">
         <el-row class="opeate-tools" type="flex" justify="end">
-          <el-button size="mini" type="primary" @click="$router.push('/employee/detail')">添加员工</el-button>
+          <el-button v-permission="'add-employee'" size="mini" type="primary" @click="$router.push('/employee/detail')">添加员工</el-button>
           <el-button size="mini">excel导入</el-button>
           <el-button size="mini">excel导出</el-button>
         </el-row>
@@ -52,7 +52,7 @@
           <el-table-column label="操作">
             <template v-slot="{row}">
               <el-button size="mini" type="text" @click="$router.push(`/employee/detail/${row.id}`)">查看</el-button>
-              <el-button size="mini" type="text">角色</el-button>
+              <el-button size="mini" type="text" @click="btnRole(row.id)">角色</el-button>
               <el-popconfirm title="确认删除该行数据吗？" @onConfirm="confirmDel(row.id)">
                 <el-button slot="reference" style="margin-left:10px" size="mini" type="text">删除</el-button>
               </el-popconfirm>
@@ -71,11 +71,27 @@
         </el-row>
       </div>
     </div>
+    <el-dialog :visible.sync="showRoleDialog" title="分配角色">
+      <el-checkbox-group v-model="roleIds">
+        <!-- 放置n个的checkbox  要执行checkbox的存储值 item.id-->
+        <el-checkbox
+          v-for="item in roleList"
+          :key="item.id"
+          :label="item.id"
+        >{{ item.name }}</el-checkbox>
+      </el-checkbox-group>
+      <el-row slot="footer" type="flex" justify="center">
+        <el-col :span="6">
+          <el-button type="primary" size="mini" @click="btnRoleOK">确定</el-button>
+          <el-button size="mini" @click="showRoleDialog = false">取消</el-button>
+        </el-col>
+      </el-row>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getEmployeeList, delEmployee } from '@/api/employee'
+import { getEmployeeList, delEmployee, getEnableRoleList, getEmployeeDetail, assignRole } from '@/api/employee'
 import { getDepartment } from '@/api/department'
 import { transListToTreeData } from '@/utils'
 export default {
@@ -94,7 +110,11 @@ export default {
         departmentId: null,
         keyword: ''
       },
-      total: 0
+      total: 0,
+      showRoleDialog: false, // 用来控制角色弹层的显示
+      roleList: [], // 接收角色列表
+      roleIds: [], // 用来双向绑定数据的
+      currentUserId: null// 用来接收id
     }
   },
   created() {
@@ -142,6 +162,25 @@ export default {
       }
       this.getEmployeeList()
       this.$message.success('删除成功')
+    },
+    // 设置角色弹出
+    async btnRole(id) {
+      this.currentUserId = id
+      // 拿到所有角色
+      const data = await getEnableRoleList()
+      this.roleList = data
+      // 拿到原本选中的角色
+      const { roleIds } = await getEmployeeDetail(id)
+      this.roleIds = roleIds
+      this.showRoleDialog = true
+    },
+    async btnRoleOK() {
+      await assignRole({
+        id: this.currentUserId,
+        roleIds: this.roleIds
+      })
+      this.$message.success('分配用户角色成功')
+      this.showRoleDialog = false
     }
   }
 
